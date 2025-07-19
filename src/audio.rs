@@ -1,9 +1,24 @@
 //! Audio simple avec beep quand sound_timer > 0
 
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+    
+    #[wasm_bindgen(js_namespace = ["window", "ferris8Audio"])]
+    fn playBeep(frequency: f32, volume: f32);
+    
+    #[wasm_bindgen(js_namespace = ["window", "ferris8Audio"])]
+    fn stopBeep();
+}
+
 pub struct Audio {
     volume: f32,
     enabled: bool,
     frequency: f32,
+    is_playing: bool,
 }
 
 impl Audio {
@@ -12,6 +27,7 @@ impl Audio {
             volume: 0.5,
             enabled: true,
             frequency: 440.0,
+            is_playing: false,
         }
     }
     
@@ -27,12 +43,22 @@ impl Audio {
         self.frequency = frequency.clamp(100.0, 2000.0);
     }
     
-    pub fn play_beep(&self) {
-        // TODO: Web Audio API
+    pub fn play_beep(&mut self) {
+        if self.enabled && !self.is_playing {
+            unsafe {
+                playBeep(self.frequency, self.volume);
+            }
+            self.is_playing = true;
+        }
     }
     
-    pub fn stop_beep(&self) {
-        // TODO: Web Audio API
+    pub fn stop_beep(&mut self) {
+        if self.is_playing {
+            unsafe {
+                stopBeep();
+            }
+            self.is_playing = false;
+        }
     }
     
     pub fn get_settings(&self) -> AudioSettings {
@@ -48,5 +74,11 @@ pub struct AudioSettings {
     pub volume: f32,
     pub enabled: bool,
     pub frequency: f32,
+}
+
+impl Audio {
+    pub fn is_playing(&self) -> bool {
+        self.is_playing
+    }
 }
 

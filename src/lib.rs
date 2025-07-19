@@ -104,4 +104,9 @@ impl Emulator {
     pub fn get_stats(&self) -> String {
         self.cpu.get_stats()
     }
+    
+    #[wasm_bindgen]
+    pub fn memory_dump(&self, start: u16, length: u16) -> String {
+        self.cpu.memory_dump(start, length)
+    }
 }

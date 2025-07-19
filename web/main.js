@@ -2,6 +2,84 @@
 
 import init, { Emulator, greet } from './pkg/ferris8.js';
 
+// Système audio Web Audio API
+class AudioSystem {
+    constructor() {
+        this.audioContext = null;
+        this.oscillator = null;
+        this.gainNode = null;
+        this.enabled = true;
+        this.initialized = false;
+    }
+
+    async init() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.connect(this.audioContext.destination);
+            this.initialized = true;
+            console.log('🔊 Audio system initialized');
+        } catch (error) {
+            console.warn('⚠️ Audio system failed to initialize:', error);
+            this.enabled = false;
+        }
+    }
+
+    playBeep(frequency = 440, volume = 0.5) {
+        if (!this.enabled || !this.initialized) return;
+
+        try {
+            // Stop current beep if any
+            this.stopBeep();
+
+            // Resume context if suspended (required by browser policies)
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+
+            // Create oscillator
+            this.oscillator = this.audioContext.createOscillator();
+            this.oscillator.type = 'square';
+            this.oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            
+            // Set volume
+            this.gainNode.gain.setValueAtTime(volume * 0.1, this.audioContext.currentTime); // Lower volume
+            
+            // Connect and start
+            this.oscillator.connect(this.gainNode);
+            this.oscillator.start();
+        } catch (error) {
+            console.warn('⚠️ Audio playback error:', error);
+        }
+    }
+
+    stopBeep() {
+        if (this.oscillator) {
+            try {
+                this.oscillator.stop();
+                this.oscillator.disconnect();
+            } catch (error) {
+                // Oscillator might already be stopped
+            }
+            this.oscillator = null;
+        }
+    }
+
+    setEnabled(enabled) {
+        this.enabled = enabled;
+        if (!enabled) {
+            this.stopBeep();
+        }
+    }
+}
+
+// Global audio system
+const audioSystem = new AudioSystem();
+window.ferris8Audio = {
+    playBeep: (frequency, volume) => audioSystem.playBeep(frequency, volume),
+    stopBeep: () => audioSystem.stopBeep()
+};
+
 class Ferris8App {
     constructor() {
         this.emulator = null;
@@ -43,6 +121,9 @@ class Ferris8App {
 
             // Initialiser le module WebAssembly
             await init();
+
+            // Initialiser le système audio
+            await audioSystem.init();
 
             const greeting = greet('Developer');
             console.log(greeting);
@@ -107,8 +188,9 @@ class Ferris8App {
         });
 
         document.getElementById('sound-enabled').addEventListener('change', (e) => {
-            console.log('🔊 Son', e.target.checked ? 'activé' : 'désactivé');
-            // TODO: Implémenter contrôle du son
+            const enabled = e.target.checked;
+            console.log('🔊 Son', enabled ? 'activé' : 'désactivé');
+            audioSystem.setEnabled(enabled);
         });
 
         // Clavier
@@ -636,9 +718,18 @@ class Ferris8App {
 
         try {
             console.log('🗃️ Memory dump demandé');
-            // TODO: Implémenter dump mémoire via une fonction Rust exposée
-            document.getElementById('memory-info').textContent =
-                'Memory dump: Fonction à implémenter côté Rust';
+            
+            // Dump de la zone des programmes (0x200-0x2FF)
+            const programDump = this.emulator.memory_dump(0x200, 256);
+            
+            // Dump des fonts (0x50-0x9F) 
+            const fontDump = this.emulator.memory_dump(0x50, 80);
+            
+            const fullDump = `=== MEMORY DUMP ===\n\n--- FONTS (0x50-0x9F) ---\n${fontDump}\n\n--- PROGRAM AREA (0x200-0x2FF) ---\n${programDump}`;
+            
+            console.log(fullDump);
+            document.getElementById('memory-info').textContent = fullDump;
+            
         } catch (error) {
             this.handleError('Erreur memory dump', error);
         }

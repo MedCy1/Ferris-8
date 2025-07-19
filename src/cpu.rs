@@ -178,6 +178,8 @@ impl Cpu {
         if self.sound_timer > 0 {
             self.sound_timer -= 1;
             self.audio.play_beep();
+        } else if self.audio.is_playing() {
+            self.audio.stop_beep();
         }
     }
     
@@ -603,5 +605,9 @@ impl Cpu {
     /// État simple pour l'interface
     pub fn is_running(&self) -> bool {
         !self.halted && self.is_healthy()
+    }
+    
+    pub fn memory_dump(&self, start: u16, length: u16) -> String {
+        self.memory.hex_dump(start, length)
     }
 }
