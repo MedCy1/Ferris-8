@@ -645,10 +645,42 @@ class Ferris8App {
     setupCustomDropdown() {
         const header = document.getElementById('dropdown-header');
         const menu = document.getElementById('dropdown-menu');
+        const searchInput = document.getElementById('rom-search');
+        
+        console.log('🔧 Setup dropdown:', { header, menu, searchInput });
+        
+        if (!header || !menu) {
+            console.error('❌ Éléments dropdown introuvables!');
+            return;
+        }
         
         header.addEventListener('click', () => {
+            console.log('🖱️ Click sur dropdown header');
             header.classList.toggle('active');
             menu.classList.toggle('open');
+            
+            // Focus search input when opening
+            if (menu.classList.contains('open') && searchInput) {
+                setTimeout(() => searchInput.focus(), 100);
+            }
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', (e) => {
+            this.filterROMs(e.target.value);
+        });
+
+        // Prevent dropdown from closing when clicking on search input
+        searchInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Clear search when dropdown closes
+        menu.addEventListener('transitionend', () => {
+            if (!menu.classList.contains('open')) {
+                searchInput.value = '';
+                this.filterROMs(''); // Show all ROMs
+            }
         });
 
         // Close dropdown when clicking outside
@@ -661,10 +693,10 @@ class Ferris8App {
     }
 
     populateROMSelector() {
-        const menu = document.getElementById('dropdown-menu');
+        const content = document.getElementById('dropdown-content');
         
         // Clear existing options
-        menu.innerHTML = '';
+        content.innerHTML = '';
 
         // Group ROMs by category
         const categories = [...new Set(this.availableROMs.map(rom => rom.category))];
@@ -675,7 +707,8 @@ class Ferris8App {
                 const categoryHeader = document.createElement('div');
                 categoryHeader.className = 'dropdown-category';
                 categoryHeader.textContent = category;
-                menu.appendChild(categoryHeader);
+                categoryHeader.dataset.category = category;
+                content.appendChild(categoryHeader);
             }
             
             // Add ROMs for this category
@@ -685,6 +718,8 @@ class Ferris8App {
                     const option = document.createElement('div');
                     option.className = 'dropdown-option';
                     option.dataset.romData = JSON.stringify(rom);
+                    option.dataset.category = rom.category;
+                    option.dataset.searchText = `${rom.name} ${rom.description} ${rom.author}`.toLowerCase();
                     
                     option.innerHTML = `
                         <div class="option-name">${rom.name}</div>
@@ -693,14 +728,15 @@ class Ferris8App {
                     `;
                     
                     option.addEventListener('click', () => this.onROMSelected(rom, option));
-                    menu.appendChild(option);
+                    content.appendChild(option);
                 });
             
             // Add separator between categories (except for the last one)
             if (categories.length > 1 && categoryIndex < categories.length - 1) {
                 const separator = document.createElement('div');
                 separator.className = 'dropdown-separator';
-                menu.appendChild(separator);
+                separator.dataset.category = category;
+                content.appendChild(separator);
             }
         });
 
@@ -710,11 +746,12 @@ class Ferris8App {
     onROMSelected(romData, optionElement) {
         const header = document.getElementById('dropdown-header');
         const menu = document.getElementById('dropdown-menu');
+        const content = document.getElementById('dropdown-content');
         const loadButton = document.getElementById('btn-load-selected-rom');
         const romInfo = document.getElementById('rom-info');
 
         // Remove previous selection
-        menu.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        content.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
         
         // Mark as selected
         optionElement.classList.add('selected');
@@ -741,6 +778,55 @@ class Ferris8App {
         romInfo.classList.remove('hidden');
         
         console.log('🎯 ROM sélectionnée:', romData.name);
+    }
+
+    filterROMs(searchTerm) {
+        const content = document.getElementById('dropdown-content');
+        const options = content.querySelectorAll('.dropdown-option');
+        const categories = content.querySelectorAll('.dropdown-category');
+        const separators = content.querySelectorAll('.dropdown-separator');
+        
+        const term = searchTerm.toLowerCase().trim();
+        let visibleCount = 0;
+        let visibleCategories = new Set();
+
+        // Filter options
+        options.forEach(option => {
+            const searchText = option.dataset.searchText;
+            const isVisible = !term || searchText.includes(term);
+            
+            option.classList.toggle('hidden', !isVisible);
+            
+            if (isVisible) {
+                visibleCount++;
+                visibleCategories.add(option.dataset.category);
+            }
+        });
+
+        // Show/hide categories based on visible options
+        categories.forEach(category => {
+            const shouldShow = visibleCategories.has(category.dataset.category);
+            category.classList.toggle('hidden', !shouldShow);
+        });
+
+        // Show/hide separators
+        separators.forEach(separator => {
+            const shouldShow = visibleCategories.has(separator.dataset.category);
+            separator.classList.toggle('hidden', !shouldShow);
+        });
+
+        // Show "no results" message if needed
+        const existingNoResults = content.querySelector('.no-results');
+        if (existingNoResults) {
+            existingNoResults.remove();
+        }
+
+        if (visibleCount === 0 && term) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.textContent = `Aucune ROM trouvée pour "${searchTerm}"`;
+            content.appendChild(noResults);
+        }
     }
 
     async loadSelectedROM() {
