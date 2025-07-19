@@ -656,12 +656,21 @@ class Ferris8App {
         
         header.addEventListener('click', () => {
             console.log('🖱️ Click sur dropdown header');
-            header.classList.toggle('active');
-            menu.classList.toggle('open');
             
-            // Focus search input when opening
-            if (menu.classList.contains('open') && searchInput) {
-                setTimeout(() => searchInput.focus(), 100);
+            if (menu.classList.contains('open')) {
+                // Fermer
+                header.classList.remove('active');
+                menu.classList.remove('open');
+            } else {
+                // Ouvrir
+                this.positionDropdown(header, menu);
+                header.classList.add('active');
+                menu.classList.add('open');
+                
+                // Focus search input when opening
+                if (searchInput) {
+                    setTimeout(() => searchInput.focus(), 100);
+                }
             }
         });
 
@@ -690,6 +699,12 @@ class Ferris8App {
                 menu.classList.remove('open');
             }
         });
+    }
+
+    positionDropdown(header, menu) {
+        // Toujours ouvrir vers le haut
+        menu.classList.add('open-up');
+        console.log('⬆️ Dropdown toujours ouvert vers le haut');
     }
 
     populateROMSelector() {
