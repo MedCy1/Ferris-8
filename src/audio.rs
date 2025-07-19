@@ -45,18 +45,14 @@ impl Audio {
     
     pub fn play_beep(&mut self) {
         if self.enabled && !self.is_playing {
-            unsafe {
-                playBeep(self.frequency, self.volume);
-            }
+            playBeep(self.frequency, self.volume);
             self.is_playing = true;
         }
     }
     
     pub fn stop_beep(&mut self) {
         if self.is_playing {
-            unsafe {
-                stopBeep();
-            }
+            stopBeep();
             self.is_playing = false;
         }
     }
