@@ -38,11 +38,39 @@
                 <div class="control-group">
                     <h3>📁 ROM</h3>
                     <input type="file" id="rom-input" accept=".ch8,.c8" />
-                    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin: 10px 0;">
-                        <button id="btn-rom-simple" class="btn btn-info btn-small">🔸 Pixel fixe</button>
-                        <button id="btn-rom-blink" class="btn btn-info btn-small">💫 Clignotant</button>
-                        <button id="btn-rom-test" class="btn btn-info btn-small">🏃 Carré mobile</button>
-                        <button id="btn-rom-demo" class="btn btn-info btn-small">📝 Affiche "BE"</button>
+                    
+                    <div class="rom-section">
+                        <h4>🧪 ROMs de Test</h4>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap; margin: 10px 0;">
+                            <button id="btn-rom-simple" class="btn btn-info btn-small">🔸 Pixel fixe</button>
+                            <button id="btn-rom-blink" class="btn btn-info btn-small">💫 Clignotant</button>
+                            <button id="btn-rom-test" class="btn btn-info btn-small">🏃 Carré mobile</button>
+                            <button id="btn-rom-demo" class="btn btn-info btn-small">📝 Affiche "BE"</button>
+                        </div>
+                    </div>
+
+                    <div class="rom-section">
+                        <h4>🎮 ROMs Classiques</h4>
+                        <div class="rom-selector">
+                            <div class="custom-dropdown" id="rom-dropdown">
+                                <div class="dropdown-header" id="dropdown-header">
+                                    <span class="dropdown-text">-- Choisir une ROM --</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="dropdown-menu" id="dropdown-menu">
+                                    <!-- Options will be populated by JS -->
+                                </div>
+                            </div>
+                            <button id="btn-load-selected-rom" class="btn btn-primary btn-small" disabled>Charger</button>
+                        </div>
+                        
+                        <div id="rom-info" class="rom-info hidden">
+                            <div class="rom-details">
+                                <h5 id="rom-title"></h5>
+                                <p id="rom-description"></p>
+                                <small id="rom-meta"></small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

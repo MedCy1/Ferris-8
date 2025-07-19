@@ -1,0 +1,28 @@
+{
+  "roms": [
+    {
+      "name": "PONG",
+      "file": "Pong.ch8",
+      "description": "Le classique jeu de ping-pong pour deux joueurs",
+      "author": "Paul Vervalin",
+      "year": 1990,
+      "category": "Jeu"
+    },
+    {
+      "name": "SNAKE",
+      "file": "snake.ch8",
+      "description": "Le célèbre jeu du serpent qui grandit",
+      "author": "Inconnu",
+      "year": 1980,
+      "category": "Jeu"
+    },
+    {
+      "name": "SNAKE",
+      "file": "snake.ch8",
+      "description": "Le célèbre jeu du serpent qui grandit",
+      "author": "Inconnu",
+      "year": 1980,
+      "category": "Demo"
+    }
+  ]
+}

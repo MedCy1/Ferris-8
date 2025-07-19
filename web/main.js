@@ -112,6 +112,10 @@ class Ferris8App {
         this.errorCount = 0;
         this.lastError = null;
 
+        // ROM management
+        this.availableROMs = [];
+        this.selectedROM = null;
+
         console.log('🦀 Ferris-8 App créée avec gestion d\'erreurs renforcée');
     }
 
@@ -135,6 +139,9 @@ class Ferris8App {
             // Vérifier que l'émulateur fonctionne
             const debugInfo = this.emulator.get_debug_info();
             console.log('🔍 État initial:', debugInfo);
+
+            // Charger la liste des ROMs disponibles
+            await this.loadAvailableROMs();
 
             this.hideLoading();
 
@@ -180,6 +187,10 @@ class Ferris8App {
         document.getElementById('btn-rom-blink').addEventListener('click', () => this.loadTestROM('blink'));
         document.getElementById('btn-rom-test').addEventListener('click', () => this.loadTestROM('test'));
         document.getElementById('btn-rom-demo').addEventListener('click', () => this.loadTestROM('demo'));
+
+        // Custom ROM dropdown
+        this.setupCustomDropdown();
+        document.getElementById('btn-load-selected-rom').addEventListener('click', () => this.loadSelectedROM());
 
         // Paramètres
         document.getElementById('speed-slider').addEventListener('input', (e) => {
@@ -605,6 +616,177 @@ class Ferris8App {
         }
 
         console.log(info + hexDump);
+    }
+
+    // ========== GESTION DES ROMS EXTERNES ==========
+
+    async loadAvailableROMs() {
+        try {
+            console.log('📂 Chargement de la liste des ROMs...');
+            const response = await fetch('./roms/index.json');
+            
+            if (!response.ok) {
+                console.warn('⚠️ Impossible de charger index.json, mode ROM externe désactivé');
+                return;
+            }
+
+            const data = await response.json();
+            this.availableROMs = data.roms || [];
+            
+            console.log(`✅ ${this.availableROMs.length} ROMs trouvées`);
+            this.populateROMSelector();
+            
+        } catch (error) {
+            console.warn('⚠️ Erreur chargement ROMs:', error.message);
+            this.availableROMs = [];
+        }
+    }
+
+    setupCustomDropdown() {
+        const header = document.getElementById('dropdown-header');
+        const menu = document.getElementById('dropdown-menu');
+        
+        header.addEventListener('click', () => {
+            header.classList.toggle('active');
+            menu.classList.toggle('open');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('rom-dropdown').contains(e.target)) {
+                header.classList.remove('active');
+                menu.classList.remove('open');
+            }
+        });
+    }
+
+    populateROMSelector() {
+        const menu = document.getElementById('dropdown-menu');
+        
+        // Clear existing options
+        menu.innerHTML = '';
+
+        // Group ROMs by category
+        const categories = [...new Set(this.availableROMs.map(rom => rom.category))];
+        
+        categories.forEach((category, categoryIndex) => {
+            // Add category header if we have multiple categories
+            if (categories.length > 1) {
+                const categoryHeader = document.createElement('div');
+                categoryHeader.className = 'dropdown-category';
+                categoryHeader.textContent = category;
+                menu.appendChild(categoryHeader);
+            }
+            
+            // Add ROMs for this category
+            this.availableROMs
+                .filter(rom => rom.category === category)
+                .forEach(rom => {
+                    const option = document.createElement('div');
+                    option.className = 'dropdown-option';
+                    option.dataset.romData = JSON.stringify(rom);
+                    
+                    option.innerHTML = `
+                        <div class="option-name">${rom.name}</div>
+                        <div class="option-meta">${rom.author} • ${rom.year} • ${rom.category}</div>
+                        <div class="option-description">${rom.description}</div>
+                    `;
+                    
+                    option.addEventListener('click', () => this.onROMSelected(rom, option));
+                    menu.appendChild(option);
+                });
+            
+            // Add separator between categories (except for the last one)
+            if (categories.length > 1 && categoryIndex < categories.length - 1) {
+                const separator = document.createElement('div');
+                separator.className = 'dropdown-separator';
+                menu.appendChild(separator);
+            }
+        });
+
+        console.log(`🎮 ${this.availableROMs.length} ROMs ajoutées au sélecteur dans ${categories.length} catégorie(s)`);
+    }
+
+    onROMSelected(romData, optionElement) {
+        const header = document.getElementById('dropdown-header');
+        const menu = document.getElementById('dropdown-menu');
+        const loadButton = document.getElementById('btn-load-selected-rom');
+        const romInfo = document.getElementById('rom-info');
+
+        // Remove previous selection
+        menu.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Mark as selected
+        optionElement.classList.add('selected');
+        
+        // Update header text
+        document.querySelector('.dropdown-text').textContent = romData.name;
+        
+        // Close dropdown
+        header.classList.remove('active');
+        menu.classList.remove('open');
+        
+        // Store selected ROM
+        this.selectedROM = romData;
+        
+        // Enable load button
+        loadButton.disabled = false;
+        
+        // Show ROM info
+        document.getElementById('rom-title').textContent = romData.name;
+        document.getElementById('rom-description').textContent = romData.description;
+        document.getElementById('rom-meta').textContent = 
+            `${romData.author} • ${romData.year} • ${romData.category}`;
+        
+        romInfo.classList.remove('hidden');
+        
+        console.log('🎯 ROM sélectionnée:', romData.name);
+    }
+
+    async loadSelectedROM() {
+        if (!this.selectedROM) {
+            this.showError('Aucune ROM sélectionnée');
+            return;
+        }
+
+        try {
+            console.log(`📁 Chargement de ${this.selectedROM.name}...`);
+            
+            // Reset before loading
+            this.reset();
+            
+            // Fetch ROM file
+            const response = await fetch(`./roms/${this.selectedROM.file}`);
+            
+            if (!response.ok) {
+                throw new Error(`ROM non trouvée: ${this.selectedROM.file}`);
+            }
+            
+            const arrayBuffer = await response.arrayBuffer();
+            const romData = new Uint8Array(arrayBuffer);
+            
+            // Validate ROM size
+            if (romData.length === 0) {
+                throw new Error('ROM vide');
+            }
+            
+            if (romData.length > 3584) {
+                throw new Error(`ROM trop grosse: ${romData.length} bytes > 3584 bytes max`);
+            }
+            
+            // Load ROM
+            this.emulator.load_rom(romData);
+            
+            console.log(`✅ ${this.selectedROM.name} chargée: ${romData.length} bytes`);
+            
+            // Update UI
+            this.displayROMInfo(this.selectedROM.name, romData);
+            this.updateStatus(`🎮 ${this.selectedROM.name}`);
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement ROM:', error);
+            this.handleError('Erreur chargement ROM', error);
+        }
     }
 
     // ========== ROMS DE TEST CORRIGÉES ==========

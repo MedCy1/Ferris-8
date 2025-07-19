@@ -498,3 +498,221 @@ label {
     transform: translateY(-1px);
     transition: var(--transition);
 }
+
+/* ROM Selector Styles */
+.rom-section {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rom-section h4 {
+    margin: 0 0 10px 0;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+.rom-selector {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+    font-family: var(--font-mono);
+}
+
+.dropdown-header {
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dropdown-header:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+    border-color: rgba(74, 158, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.dropdown-header.active {
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-text {
+    color: #fff;
+    font-size: 13px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-arrow {
+    color: #4a9eff;
+    font-size: 10px;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-header.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(42, 52, 65, 0.95));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(74, 158, 255, 0.3);
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(74, 158, 255, 0.1));
+    box-shadow: inset 3px 0 0 #4a9eff;
+}
+
+.dropdown-option.selected {
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(74, 158, 255, 0.15));
+    border-left: 3px solid #4a9eff;
+}
+
+.option-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.option-meta {
+    color: #999;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.option-description {
+    color: #ccc;
+    font-size: 12px;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* Custom scrollbar for dropdown */
+.dropdown-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(74, 158, 255, 0.5);
+    border-radius: 2px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 158, 255, 0.8);
+}
+
+/* Category headers and separators */
+.dropdown-category {
+    padding: 8px 15px 4px 15px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4a9eff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(74, 158, 255, 0.1);
+    border-top: 1px solid rgba(74, 158, 255, 0.2);
+    cursor: default;
+}
+
+.dropdown-category:first-child {
+    border-top: none;
+}
+
+.dropdown-separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    margin: 4px 0;
+}
+
+.rom-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border-left: 3px solid #4a9eff;
+}
+
+.rom-info.hidden {
+    display: none;
+}
+
+.rom-details h5 {
+    margin: 0 0 5px 0;
+    color: #4a9eff;
+    font-size: 16px;
+}
+
+.rom-details p {
+    margin: 0 0 8px 0;
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.rom-details small {
+    color: #999;
+    font-size: 12px;
+}
