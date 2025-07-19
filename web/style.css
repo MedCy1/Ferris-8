@@ -499,6 +499,128 @@ label {
     transition: var(--transition);
 }
 
+/* File Upload Zone */
+.file-upload-zone {
+    border: 2px dashed rgba(74, 158, 255, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.05), rgba(74, 158, 255, 0.02));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.file-upload-zone:hover {
+    border-color: rgba(74, 158, 255, 0.6);
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(74, 158, 255, 0.05));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(74, 158, 255, 0.2);
+}
+
+.file-upload-zone.dragover {
+    border-color: #4a9eff;
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(74, 158, 255, 0.1));
+    box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.1);
+    transform: scale(1.02);
+}
+
+.upload-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.upload-icon {
+    font-size: 32px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.file-upload-zone:hover .upload-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.upload-text {
+    text-align: left;
+}
+
+.upload-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.upload-subtitle {
+    color: #ccc;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.upload-formats {
+    color: #999;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    opacity: 0.8;
+}
+
+/* Loading state for upload */
+.file-upload-zone.loading {
+    border-color: #4a9eff;
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.15), rgba(74, 158, 255, 0.08));
+    pointer-events: none;
+}
+
+.file-upload-zone.loading .upload-icon {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Success state */
+.file-upload-zone.success {
+    border-color: #4ade80;
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(74, 222, 128, 0.05));
+}
+
+.file-upload-zone.success .upload-icon {
+    color: #4ade80;
+}
+
+/* Error state */
+.file-upload-zone.error {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+}
+
+.file-upload-zone.error .upload-icon {
+    color: #ef4444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .upload-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .upload-text {
+        text-align: center;
+    }
+    
+    .upload-icon {
+        font-size: 28px;
+    }
+}
+
 /* ROM Selector Styles */
 .rom-section {
     margin: 15px 0;

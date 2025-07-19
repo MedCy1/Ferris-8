@@ -37,7 +37,18 @@
 
                 <div class="control-group">
                     <h3>📁 ROM</h3>
-                    <input type="file" id="rom-input" accept=".ch8,.c8" />
+                    
+                    <div class="file-upload-zone" id="file-upload-zone">
+                        <div class="upload-content">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">
+                                <div class="upload-title">Glissez votre ROM ici</div>
+                                <div class="upload-subtitle">ou cliquez pour sélectionner</div>
+                                <div class="upload-formats">Formats: .ch8, .c8</div>
+                            </div>
+                        </div>
+                        <input type="file" id="rom-input" accept=".ch8,.c8" style="display: none;" />
+                    </div>
                     
                     <div class="rom-section">
                         <h4>🧪 ROMs de Test</h4>

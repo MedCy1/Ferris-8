@@ -179,8 +179,8 @@ class Ferris8App {
         document.getElementById('btn-stop').addEventListener('click', () => this.stop());
         document.getElementById('btn-reset').addEventListener('click', () => this.reset());
 
-        // Chargement de ROM
-        document.getElementById('rom-input').addEventListener('change', (e) => this.loadROM(e));
+        // File upload zone avec drag & drop
+        this.setupFileUpload();
         
         // Boutons ROMs de test
         document.getElementById('btn-rom-simple').addEventListener('click', () => this.loadTestROM('simple'));
@@ -244,6 +244,107 @@ class Ferris8App {
         window.addEventListener('unhandledrejection', (e) => {
             this.handleError('Promise rejetée', e.reason);
         });
+    }
+
+    setupFileUpload() {
+        const uploadZone = document.getElementById('file-upload-zone');
+        const fileInput = document.getElementById('rom-input');
+
+        // Click to select file
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Drag & Drop events
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!uploadZone.contains(e.relatedTarget)) {
+                uploadZone.classList.remove('dragover');
+            }
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleFileUpload(files[0]);
+            }
+        });
+
+        console.log('📁 File upload zone configurée');
+    }
+
+    async handleFileUpload(file) {
+        const uploadZone = document.getElementById('file-upload-zone');
+        
+        try {
+            console.log(`📁 Upload de ${file.name} (${file.size} bytes)...`);
+            
+            // Visual feedback
+            uploadZone.classList.add('loading');
+            
+            // Validate file
+            if (!file.name.match(/\.(ch8|c8)$/i)) {
+                throw new Error('Format non supporté. Utilisez .ch8 ou .c8');
+            }
+            
+            if (file.size > 3584) {
+                throw new Error(`ROM trop grosse: ${file.size} bytes > 3584 bytes max`);
+            }
+            
+            if (file.size === 0) {
+                throw new Error('ROM vide');
+            }
+            
+            // Reset before loading
+            this.reset();
+            
+            // Load file
+            const arrayBuffer = await file.arrayBuffer();
+            const romData = new Uint8Array(arrayBuffer);
+            
+            // Load ROM
+            this.emulator.load_rom(romData);
+            
+            // Success feedback
+            uploadZone.classList.remove('loading');
+            uploadZone.classList.add('success');
+            setTimeout(() => {
+                uploadZone.classList.remove('success');
+            }, 2000);
+            
+            console.log(`✅ ${file.name} chargée avec succès`);
+            
+            // Update UI
+            this.displayROMInfo(file.name, romData);
+            this.updateStatus(`🎮 ROM: ${file.name}`);
+            
+        } catch (error) {
+            console.error('❌ Erreur upload ROM:', error);
+            
+            // Error feedback
+            uploadZone.classList.remove('loading');
+            uploadZone.classList.add('error');
+            setTimeout(() => {
+                uploadZone.classList.remove('error');
+            }, 3000);
+            
+            this.handleError('Erreur upload ROM', error);
+        }
     }
 
     // ========== CONTRÔLES DE L'ÉMULATEUR ==========
@@ -521,45 +622,6 @@ class Ferris8App {
         }
     }
 
-    // ========== CHARGEMENT DE ROM ==========
-
-    async loadROM(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        try {
-            console.log(`📁 Chargement de ${file.name} (${file.size} bytes)...`);
-
-            // Vérifications de base
-            if (file.size > 3584) {
-                throw new Error(`ROM trop grosse: ${file.size} bytes > 3584 bytes max`);
-            }
-
-            if (file.size === 0) {
-                throw new Error('ROM vide');
-            }
-
-            // Reset AVANT de charger
-            this.reset();
-
-            const arrayBuffer = await file.arrayBuffer();
-            const romData = new Uint8Array(arrayBuffer);
-
-            // Charger la ROM
-            this.emulator.load_rom(romData);
-            console.log(`✅ ROM ${file.name} chargée avec succès`);
-
-            // Afficher info sur la ROM
-            this.displayROMInfo(file.name, romData);
-            this.updateStatus(`🎮 ROM: ${file.name}`);
-
-            // PAS de reset après !
-
-        } catch (error) {
-            console.error('❌ Erreur de chargement ROM:', error);
-            this.handleError('Erreur de chargement ROM', error);
-        }
-    }
 
     loadTestROM(romType) {
         try {
