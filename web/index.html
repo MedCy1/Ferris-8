@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦀 Ferris-8 - Émulateur Chip-8</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Compact -->
+        <header class="header">
+            <h1>🦀 Ferris-8</h1>
+            <p>Émulateur Chip-8 moderne en Rust + WebAssembly</p>
+        </header>
+
+        <!-- Zone principale - Focus sur l'écran -->
+        <main class="main-content">
+            <!-- Écran de l'émulateur - Element principal -->
+            <div class="emulator-screen">
+                <canvas id="display" width="640" height="320"></canvas>
+                <div class="screen-info">
+                    <span id="fps">FPS: --</span>
+                    <span id="status">🔴 Arrêté</span>
+                </div>
+            </div>
+
+            <!-- Contrôles -->
+            <div class="controls">
+                <div class="control-group">
+                    <h3>🎮 Contrôles</h3>
+                    <button id="btn-start" class="btn btn-primary">▶️ Start</button>
+                    <button id="btn-stop" class="btn btn-secondary">⏹️ Stop</button>
+                    <button id="btn-reset" class="btn btn-warning">🔄 Reset</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>📁 ROM</h3>
+                    <input type="file" id="rom-input" accept=".ch8,.c8" />
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin: 10px 0;">
+                        <button id="btn-rom-simple" class="btn btn-info btn-small">🔸 Pixel fixe</button>
+                        <button id="btn-rom-blink" class="btn btn-info btn-small">💫 Clignotant</button>
+                        <button id="btn-rom-test" class="btn btn-info btn-small">🏃 Carré mobile</button>
+                        <button id="btn-rom-demo" class="btn btn-info btn-small">📝 Affiche "BE"</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>⚙️ Paramètres</h3>
+                    <label>
+                        Vitesse: <span id="speed-value">500</span> Hz
+                        <input type="range" id="speed-slider" min="100" max="1000" value="500" />
+                    </label>
+                    <label>
+                        <input type="checkbox" id="sound-enabled" checked />
+                        Son activé
+                    </label>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar - Debugger -->
+        <aside class="sidebar">
+            <div class="debugger">
+                <h3>🔍 Debugger</h3>
+                
+                <div class="debug-section">
+                    <h4>📋 Registres</h4>
+                    <div id="registers-info" class="monospace">
+                        PC: 0x200 | I: 0x000 | SP: 0
+                    </div>
+                </div>
+
+                <div class="debug-section">
+                    <h4>⌨️ Clavier Chip-8</h4>
+                    <div class="chip8-keyboard">
+                        <div class="key-row">
+                            <button class="key" data-key="1">1</button>
+                            <button class="key" data-key="2">2</button>
+                            <button class="key" data-key="3">3</button>
+                            <button class="key" data-key="C">C</button>
+                        </div>
+                        <div class="key-row">
+                            <button class="key" data-key="4">4</button>
+                            <button class="key" data-key="5">5</button>
+                            <button class="key" data-key="6">6</button>
+                            <button class="key" data-key="D">D</button>
+                        </div>
+                        <div class="key-row">
+                            <button class="key" data-key="7">7</button>
+                            <button class="key" data-key="8">8</button>
+                            <button class="key" data-key="9">9</button>
+                            <button class="key" data-key="E">E</button>
+                        </div>
+                        <div class="key-row">
+                            <button class="key" data-key="A">A</button>
+                            <button class="key" data-key="0">0</button>
+                            <button class="key" data-key="B">B</button>
+                            <button class="key" data-key="F">F</button>
+                        </div>
+                    </div>
+                    <div class="keyboard-help">
+                        <small>
+                            Mapping: 1234/QWER/ASDF/ZXCV
+                        </small>
+                    </div>
+                </div>
+
+                <div class="debug-section">
+                    <h4>🗃️ Mémoire</h4>
+                    <button id="btn-memory-dump" class="btn btn-small">Voir mémoire</button>
+                    <div id="memory-info" class="monospace small">
+                        Cliquez pour voir le dump mémoire
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Chargement de Ferris-8...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>

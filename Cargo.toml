@@ -1,0 +1,52 @@
+[package]
+name = "ferris8"
+version = "0.1.0"
+edition = "2024"
+description = "A modern Chip-8 emulator written in Rust with WebAssembly"
+authors = ["Médérick Rogé <med@zer0dev.me>"]
+license = "Apache-2.0"
+
+# Configuration pour compiler en bibliothèque WebAssembly
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# WebAssembly et bindings JavaScript
+wasm-bindgen = "0.2.100"
+js-sys = "0.3.77"
+
+# Utilitaires WebAssembly
+console_error_panic_hook = "0.1.7"
+wee_alloc = "0.4.5"
+
+# APIs Web
+[dependencies.web-sys]
+version = "0.3.77"
+features = [
+  "console",
+  "CanvasRenderingContext2d",
+  "HtmlCanvasElement", 
+  "ImageData",
+  "KeyboardEvent",
+  "MouseEvent",
+  "EventTarget",
+  "Event",
+  "Document",
+  "Element",
+  "HtmlElement",
+  "Window",
+  "Performance",
+  "File",
+  "FileReader",
+]
+
+# Tests
+[dev-dependencies]
+wasm-bindgen-test = "0.3.50"
+
+# Optimisations release
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
